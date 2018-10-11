@@ -8,11 +8,13 @@ The mapping algorithm may be different from OxO's. A few test cases have been ru
 
 Python 3
 
+[Mapping files](http://ftp.ebi.ac.uk/pub/databases/spot/oxo/)
+
 ## Notes
 
-Update ```OxO._file_ols``` and ```OxO._file_umls``` with the location of the mapping files provided by EMBL-EBI.
+Update ```OxO._file_ols```, ```OxO._file_umls```, and ```OxO._file_terms``` with the location of the mapping files provided by EMBL-EBI.
 
-The mappings files will be loaded on the first call to ```OxO.find_mappings()```. Alternatively, you can call ```OxO.load_mappings()``` to load the files at an earlier time. 
+The mappings files will be loaded on the first call to ```OxO.find_mappings()```. The files may take ~30 seconds to load. Alternatively, you can call ```OxO.load_files()``` to load the files at an earlier time. 
 
 ## Examples
 

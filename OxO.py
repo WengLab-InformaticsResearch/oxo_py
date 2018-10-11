@@ -19,14 +19,33 @@ from collections import defaultdict
 
 class OxO:
     _mappings = None
+    _terms = None
     _file_ols = r'D:\oxo\ols_mappings.csv'
     _file_umls = r'D:\oxo\umls_mappings.csv'
+    _file_terms = r'D:\oxo\terms.csv'
 
     @staticmethod
-    def load_mappings():
+    def load_files():
+        # Initialize
+        OxO._terms = dict()
         OxO._mappings = defaultdict(set)
 
-        # Read in OLS dump file using csv reader
+        # Read in the terms
+        with open(OxO._file_terms, 'r', newline='') as fh:
+            reader = csv.reader(fh, delimiter=',', quotechar='"', doublequote=False, lineterminator='\r\n',
+                                escapechar='\\')
+
+            # Skip the header line
+            reader.__next__()
+
+            # Read in term definitions
+            for identifier, curie, label, uri, prefix in reader:
+                OxO._terms[curie] = {
+                    'label': label,
+                    'uri': uri,
+                }
+
+                # Read in OLS dump file using csv reader
         with open(OxO._file_ols, 'r', newline='') as fh:
             reader = csv.reader(fh, delimiter=',', quotechar='"', doublequote=False, lineterminator='\r\n',
                                 escapechar='\\')
@@ -59,7 +78,7 @@ class OxO:
     @staticmethod
     def find_mappings(curie_source, distance=2, targets=None):
         if OxO._mappings is None:
-            OxO.load_mappings()
+            OxO.load_files()
 
         found = dict()  # mapping results (key:curie, value:distance)
         visited = set()  # nodes already visited
@@ -91,7 +110,18 @@ class OxO:
                     prefix_curr = m.split(':')[0]
                     if m not in found and prefix_curr != prefix_source and \
                             (len(targets) == 0 or prefix_curr in targets):
-                        found[m] = i + 1
+                        info = {
+                            'distance': i + 1,
+                            'label': '',
+                            'uri': ''
+                        }
+
+                        if m in OxO._terms:
+                            term = OxO._terms[m]
+                            info['label'] = term['label']
+                            info['uri'] = term['uri']
+
+                        found[m] = info
 
             searching = search_add
 
